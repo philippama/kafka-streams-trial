@@ -1,13 +1,13 @@
-key001:{"time":"08","station":"Crewe"}
-key002:{"time":"08","station":"Sandbach"}
-key003:{"time":"08","station":"Holmes Chapel"}
-key004:{"time":"08","station":"Goostrey"}
-key005:{"time":"08","station":"Chelford"}
-key006:{"time":"08","station":"Alderly Edge"}
-key007:{"time":"08","station":"Wilmslow"}
-key008:{"time":"08","station":"Handforth"}
-key009:{"time":"08","station":"Cheadle Hulme"}
-key011:{"time":"08","station":"Stockport"}
-key012:{"time":"08","station":"Heaton Chapel"}
-key013:{"time":"08","station":"Levenshulme"}
-key014:{"time":"08","station":"Manchester Piccadilly"}
+key001:{"time":"0722","station":"Crewe"}
+key002:{"time":"0735","station":"Sandbach"}
+key003:{"time":"0741","station":"Holmes Chapel"}
+key004:{"time":"0745","station":"Goostrey"}
+key005:{"time":"0751","station":"Chelford"}
+key006:{"time":"0756","station":"Alderly Edge"}
+key007:{"time":"0800","station":"Wilmslow"}
+key008:{"time":"0803","station":"Handforth"}
+key009:{"time":"0809","station":"Cheadle Hulme"}
+key011:{"time":"0814","station":"Stockport"}
+key012:{"time":"0818","station":"Heaton Chapel"}
+key013:{"time":"0821","station":"Levenshulme"}
+key014:{"time":"0827","station":"Manchester Piccadilly"}

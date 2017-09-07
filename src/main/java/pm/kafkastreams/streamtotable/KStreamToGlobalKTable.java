@@ -14,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 public class KStreamToGlobalKTable {
     public static void main(String[] args) throws Exception {
         Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-join");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-join-output");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());

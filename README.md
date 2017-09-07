@@ -26,8 +26,8 @@ WordcountDemo from https://github.com/apache/kafka/blob/0.11.0/streams/examples/
 
 Create topics:
 ```bash
-$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-plaintext-input
-$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-wordcount-output
+$KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-plaintext-input
+$KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-wordcount-output
 ```
 Produce to input topic:
 ```bash
@@ -56,9 +56,9 @@ https://github.com/confluentinc/examples/blob/3.3.0-post/kafka-streams/src/main/
 
 Create topics:
 ```bash
-$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-join-stream-input
-$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-join-table-input
-$KAFKA_HOME/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-join-output
+$KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-join-stream-input
+$KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-join-table-input
+$KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-join-output
 ```
 
 Produce to stream input topic:
@@ -95,8 +95,7 @@ $KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 \
     --property print.value=true \
     --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
     --property value.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
-    --consumer-property group.id=philippa \
-    --from-beginning
+    --consumer-property group.id=philippa
 ```
 
 ## To do:
@@ -106,6 +105,14 @@ $KAFKA_HOME/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 \
         * ~~See uk.co.autotrader.forge.service.consumer.TopicConsumerRunnable [from subscribeAndKeepConsumingUntilShutdown()] and follow 
         uk.co.autotrader.forge.service.serialisation.ForgeSerialiser~~
     * ~~Make application consume from input topic and produce to output topic~~
+    * Deserialise JSON from input topic
+```
+        final Serializer<JsonNode> jsonSerialiser = new JsonSerializer();
+        final Deserializer<JsonNode> jsonDeserialiser = new JsonDeserializer();
+        final Serde<JsonNode> jsonSerde = Serdes.serdeFrom(jsonSerialiser, jsonDeserialiser);
+
+        KStream<String, JsonNode> stream = builder.stream(Serdes.String(), jsonSerde, STREAM_INPUT_TOPIC);
+```
     * Make application consume from table topic, join them and produce to output topic
     * Manually produce to table topic and see output change accordingly
     * See what happens when application is killed, topics are updated the application is restarted
