@@ -10,8 +10,11 @@ import org.apache.kafka.connect.json.JsonDeserializer;
 import org.apache.kafka.connect.json.JsonSerializer;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.GlobalKTable;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KStreamBuilder;
+import org.apache.kafka.streams.kstream.KeyValueMapper;
+import org.apache.kafka.streams.kstream.ValueJoiner;
 
 import java.time.LocalTime;
 import java.util.Properties;
@@ -40,14 +43,29 @@ public class KStreamToGlobalKTable {
         // https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Streams+Application+Reset+Tool
 //        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // TODO: how can I make this work?
 
+        System.out.println(LocalTime.now().toString() + "--------------------------------------------");
+
         KStreamBuilder builder = new KStreamBuilder();
 
-        KStream<String, JsonNode> source = builder.stream(Serdes.String(), jsonSerde, STREAM_INPUT_TOPIC);
+        KStream<String, JsonNode> streamSource = builder.stream(Serdes.String(), jsonSerde, STREAM_INPUT_TOPIC);
 
-        source
-                .peek((key, value) -> printKeyValue(key, getValueAsString(value), "Input")) // Added this line to log input to console.
-//                .peek((key, value) -> printKeyValue(key, value.toString(), "Output")) // Added these two lines to log results to console.
-                .to(Serdes.String(), jsonSerde, "streams-join-output");
+        GlobalKTable<String, String> globalTable = builder.globalTable(Serdes.String(), Serdes.String(), TABLE_INPUT_TOPIC, STORE_NAME);
+
+        KeyValueMapper<String, JsonNode, String> joinKeyExtractor = (streamKey, streamValue) -> {
+            return streamValue.get("station").textValue();
+        };
+
+        ValueJoiner<JsonNode, String, JsonNode> valueJoiner = (streamValue, globalTableValue) -> {
+            System.out.println(String.format("globalTableValue = \"%s\"", globalTableValue));
+            ((ObjectNode) streamValue).put("numPeople", globalTableValue);
+            return streamValue;
+        };
+
+        streamSource
+                .peek((key, value) -> printKeyValue(key, getInputValueAsString(value), "Input")) // Log input to console.
+                .leftJoin(globalTable, joinKeyExtractor, valueJoiner)
+                .peek((key, value) -> printKeyValue(key, getOutputValueAsString(value), "Output"))
+                .to(Serdes.String(), jsonSerde, OUTPUT_TOPIC);
 
         final KafkaStreams streams = new KafkaStreams(builder, props);
         final CountDownLatch latch = new CountDownLatch(1);
@@ -81,12 +99,19 @@ public class KStreamToGlobalKTable {
         JsonNode jsonNode = jsonDeserialiser.deserialize("topic", json.getBytes());
         ((ObjectNode) jsonNode).put("extra", "hi");
         System.out.println("Test: " + String.format("[time=%s, station=%s, extra=%s]", jsonNode.get("time").asText(), jsonNode.get("station").asText(), jsonNode.get("extra").asText()));
-        System.out.println("Test: " + getValueAsString(jsonNode));
+        System.out.println("Test: " + getInputValueAsString(jsonNode));
         return jsonSerde;
     }
 
-    private static String getValueAsString(JsonNode jsonNode) {
+    private static String getInputValueAsString(JsonNode jsonNode) {
         return String.format("[time=%s, station=%s]", jsonNode.get("time").asText(), jsonNode.get("station").asText());
+    }
+
+    private static String getOutputValueAsString(JsonNode jsonNode) {
+        return String.format("[time=%s, station=%s, numPeople=%s]",
+                jsonNode.get("time").asText(),
+                jsonNode.get("station").asText(),
+                jsonNode.get("numPeople").asText());
     }
 
     private static void printKeyValue(String key, String value, String label) {

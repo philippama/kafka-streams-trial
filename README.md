@@ -4,6 +4,17 @@ Developer Guide: https://kafka.apache.org/0110/documentation/streams/developer-g
 
 API documentation is part of the main Kafka javadoc: https://kafka.apache.org/0100/javadoc/index.html?org/apache/kafka/streams/KafkaStreams.html
 
+## Install Kafka
+
+Install Kafka and Zookeeper or get the delightful Docker Zookeeper/Kafka container from https://github.com/wurstmeister/kafka-docker.
+If using ..., edit docker-compose.yml to map port 9092 to 9092.
+...
+cd ~/Docker/kafka-docker
+edit docker-compose.yml
+~/Docker/kafka-docker/docker-compose up
+docker-compose down
+
+
 ## Useful Kafka commands
 
 ```bash
@@ -22,9 +33,21 @@ WordcountDemo from https://github.com/apache/kafka/blob/0.11.0/streams/examples/
 
 (Instructions for running a slightly different word count demo: https://kafka.apache.org/0110/documentation/streams/quickstart)
 
+## PageViewTypedDemo and PageViewUntypedDemo
+
+PageViewUntypedDemo and PageViewTypedDemo to show 
+* KStream<String, JsonNode> joined to KTable<String, JsonNode> and KTable<String, String>
+  producing KStream<JsonNode, JsonNode>
+* KStream<String, PageView> joined to KTable<String, UserProfile> and KStream<WindowedPageViewByRegion, RegionCount>
+  producing 
+
+from https://github.com/apache/kafka/tree/0.11.0/streams/examples/src/main/java/org/apache/kafka/streams/examples/pageview
+
+https://github.com/confluentinc/examples/blob/3.3.0-post/kafka-streams/src/main/java/io/confluent/examples/streams/GlobalKTablesExample.java
+
 ### Running the demo
 
-Create topics:
+Create topics (you don't need to do this if Kafka conf/server.properties `auto.create.topics.enable` is set to true):
 ```bash
 $KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-plaintext-input
 $KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-wordcount-output
@@ -54,7 +77,7 @@ https://github.com/confluentinc/examples/blob/3.3.0-post/kafka-streams/src/main/
 
 ### Running it
 
-Create topics:
+Create topics (you don't need to do this if Kafka conf/server.properties `auto.create.topics.enable` is set to true):
 ```bash
 $KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-join-stream-input
 $KAFKA_HOME/bin/kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic streams-join-table-input
